@@ -730,4 +730,551 @@ Sol4 : Bind in constructor
 |4  | getSnapShotBeforeUpdate | called right before the changes from vertual DOM are to be reflected in the actual DOM, (just before the updation hapen)|
 |5  | componenDidUpdate | called after the render is finished in re-render cycle|
 
+> App.js
+
+    import { Component } from  'react'  
+    
+    import  LifeCycle1  from  './lifecycle1';
+    class  App  extends  Component {
+	    render () {
+		    return (
+			    <LifeCycle1/>
+		    )
+	    }
+    }
+    export  default  App;
+
+> lifecycle1.js
+
+    import  React, { Component } from  'react'
+    import  LifeCycle2  from  './lifecycle2'  
+    
+    export  class  LifeCycle1  extends  Component {
+    // constructor METHOD
+    constructor(props) {
+    super(props)
+    this.state = {
+    name: 'vikas'
+    }
+    console.log('Lifecycle1 : constructor')
+    }
+    // getDerivedStateFromProps METHOD
+    static  getDerivedStateFromProps(props, state) {
+    console.log('Lifecycle1 : getDerivedStateFromProps')
+    return  null;
+    }  
+    
+    // componentDidMount METHOD
+    componentDidMount() {
+    console.log('Lifecycle1 : componentDidMount')
+    }  
+    
+    //shouldComponentUpdate METHOD
+    shouldComponentUpdate(){
+    console.log('Lifecycle1 : shouldComponentUpdate')
+    return  true;
+    }  
+    
+    //getSnapshotBeforeUpdate METHOD
+    getSnapshotBeforeUpdate(prevProp, prevState){
+    console.log('Lifecycle1 : getSnapshotBeforeUpdate')
+    return  null;
+    }  
+    
+    //componentDidUpdate METHOD
+    componentDidUpdate(){
+    console.log('Lifecycle1 : componentDidUpdate')
+    }  
+    
+    changeState(){
+    this.setState({
+    name : 'Anand'
+    })
+    }  
+    
+    // render METHOD
+    render() {
+    console.log('Lifecycle1 : render')
+    return (
+    <>
+    <LifeCycle2  />
+    <button  onClick={()=>this.changeState()}>click</button>
+    </>
+    )
+    }
+    }
+    export  default  LifeCycle1
+
+> lifecycle2.js
+
+    import  React, { Component } from  'react'  
+    
+    export  class  LifeCycle2  extends  Component {
+    // constructor METHOD
+    constructor(props) {
+    super(props)
+    this.state = {
+    name: 'vikas'
+    }
+    console.log('Lifecycle2 : constructor')
+    }
+    // getDerivedStateFromProps METHOD
+    static  getDerivedStateFromProps(props, state) {
+    console.log('Lifecycle2 : getDerivedStateFromProps')
+    return  null;
+    }
+    // componentDidMount METHOD
+    componentDidMount() {
+    console.log('Lifecycle2 : componentDidMount')
+    }  
+    
+    //shouldComponentUpdate METHOD
+    shouldComponentUpdate(){
+    console.log('Lifecycle2 : shouldComponentUpdate')
+    return  true;
+    }  
+    
+    //getSnapshotBeforeUpdate METHOD
+    getSnapshotBeforeUpdate(prevProp, prevState){
+    console.log('Lifecycle2 : getSnapshotBeforeUpdate')
+    return  null;
+    } 
+    
+    //componentDidUpdate METHOD
+    componentDidUpdate(){
+    console.log('Lifecycle2 : componentDidUpdate')
+    }  
+    
+    // render METHOD
+    render() {
+    console.log('Lifecycle2 : render')
+    return (
+    <div></div>
+    )
+    }
+    }  
+    
+    export  default  LifeCycle2
+***output***
+//in mounting lifecycle
+Lifecycle1 : constructor
+Lifecycle1 : getDerivedStateFromProps
+Lifecycle1 : render
+Lifecycle2 : constructor
+Lifecycle2 : getDerivedStateFromProps
+Lifecycle2 : render
+Lifecycle2 : componentDidMount
+Lifecycle1 : componentDidMount
+
+//in updating lifecycle
+Lifecycle1 : getDerivedStateFromProps
+Lifecycle1 : shouldComponentUpdate
+Lifecycle1 : render
+Lifecycle2 : getDerivedStateFromProps
+Lifecycle2 : shouldComponentUpdate
+Lifecycle2 : render
+Lifecycle2 : getSnapshotBeforeUpdate
+Lifecycle1 : getSnapshotBeforeUpdate
+Lifecycle2 : componentDidUpdate
+Lifecycle1 : componentDidUpdate
+Lifecycle1 : constructor
+Lifecycle1 : getDerivedStateFromProps
+Lifecycle1 : render
+Lifecycle2 : constructor
+Lifecycle2 : getDerivedStateFromProps
+Lifecycle2 : render
+Lifecycle2 : componentDidMount
+Lifecycle1 : componentDidMount
+
+### 3. Unmounting lifecycle method
+|sequence| method | purpose|
+|--|--|--|
+| 1 |  componentWillUnmount()| this will be called immediately before the component is unmounted and destroyed|
+
+### 4. Error handling lifecycle method
+| sequence | method | purpose|
+|--|--|--|
+|  1|  getDerivedStateFromError(error)| it is used to render a fallback UI when an error is thrown|
+|  2|  componentDidCatch(error, info)| it is used to log the error information|
+
+if we have a list of component to be rendered . And if any one component get any error then whole DOM will get error. To avoid this , we define error boundries and bound each list component in that so that, if any one component get error then whole DOM goes not get it.
+
+> App.js
+
+    import  React, { Component } from  'react'
+    import  Hero  from  './hero';
+    import  ErrorBoundry  from  './ErrorBoundry';
+    class  App  extends  Component {
+    render() {
+    return (
+    <>
+    <ErrorBoundry>
+    <Hero  heroName={'superMan'}  />
+    </ErrorBoundry>
+    <ErrorBoundry>
+    <Hero  heroName={'batMan'}  />
+    </ErrorBoundry>
+    <ErrorBoundry>
+    <Hero  heroName={'joker'}  />
+    </ErrorBoundry>
+    </>
+    )
+    }
+    }
+    export  default  App;
+
+> ErrorBoundry.js
+
+    import  React, { Component } from  'react'
+    class  ErrorBoundry  extends  Component {
+    constructor() {
+    super()
+    this.state = {
+    hasError: false
+    }
+    }
+    static  getDerivedStateFromError(error){
+    return {
+    hasError : true
+    }
+    }
+    componentDidCatch(error, info){
+    console.log(error)
+    console.log(info)
+    }
+    render() {
+    if(this.state.hasError){
+    return  <h3>something went wrong</h3>
+    } else {
+    return  this.props.children
+    }
+    }
+    }
+    export  default  ErrorBoundry
+
+> Hero.js
+
+    const  Hero = ({heroName}) => {
+    if(heroName === 'joker'){
+    throw  new  Error('Not a hero')
+    }
+    return (
+    <h1>{heroName}</h1>
+    )
+    }
+    export  default  Hero;
+
+
+## Pure Component in react
+Pure class components are not extends from regular component . Instead It is extended from PureComponent.
+
+> pureCom1.js
+
+    import  React, {PureComponent} from  "react";
+    class  PureCom1  extends  PureComponent {
+	    render(){
+		    return (
+			    <h1>Hello</h1>
+		    )
+	    }
+    }
+    export  default  PureCom1
+***Pure component vs regular component***
+
+> App.js (parent component)
+
+    import { Component } from  'react'  
+    
+    import  PureCom1  from  './pureCom1';
+    import  RegularCom1  from  './regularCom1';
+    class  App  extends  Component {
+    constructor(props) {
+    super(props)
+    this.state = {
+    name : 'vikas'
+    }
+    }
+    componentDidMount(){
+    setInterval(()=>{
+    this.setState({
+    name : 'vikas'
+    })
+    }, 1000)
+    }
+    render() {
+    console.log('******** parent component render ********')
+    return (
+    <>
+    <PureCom1  name={this.state.name}/>
+    <RegularCom1  name={this.state.name}/>
+    </>
+    )
+    }
+    }
+    export  default  App;
+
+> pureCom.js (Pure component)
+
+    import  React, {PureComponent} from  "react";
+    
+    class  PureCom1  extends  PureComponent {
+    render(){
+    console.log('pure component render')
+    return (
+    <h1>Pure Component : {this.props.name}</h1>
+    )
+    }
+    }
+    export  default  PureCom1
+
+> regularCom.js (Regular component)
+
+    import  React, { Component } from  'react'  
+    
+    class  RegularCom1  extends  Component {
+    render() {
+    console.log('regular component render')
+    return (
+    <h1>Regular Component : {this.props.name}</h1>
+    )
+    }
+    }
+    export  default  RegularCom1
+***output***
+
+    ******** parent component render ********
+     pure component render
+     regular component render
+    ******** parent component render ********
+    regular component render
+    ******** parent component render ********
+    regular component render
+    ******** parent component render ********
+    regular component render
+    ******** parent component render ********
+    regular component render
+note : Pure component is rendered only once
+
+|Pure component| Regular component |
+|--|--|
+|pure component compares the change with a process called **shallow comparision** and updates only if any actual change happens. (This is good for perfoemance optimisation) |  regular component get update everytime irrespective of change|
+***pure component feature only works in class components***
+
+## memo
+**memo helps to achieve pure components like features in functional components.**
+
+> App.js (parent component)
+
+    import { Component } from  'react'  
+    
+    import  MemoComp  from  './memoComp'
+    class  App  extends  Component {
+    constructor(props) {
+    super(props)
+    this.state = {
+    name : 'vikas'
+    }
+    }
+    componentDidMount(){
+    setInterval(()=>{
+    this.setState({
+    name : 'vikas'
+    })
+    }, 1000)
+    }
+    render() {
+    console.log('******** parent component render ********')
+    return (
+    <>
+    <MemoComp  name={this.state.name}/>
+    </>
+    )
+    }
+    }
+    export  default  App;
+***Without using memo***
+
+> momoComp.js (memo component)
+
+    import  React  from  "react";
+    const  MemoComp = (props) => {
+    console.log('Memo component')
+    return (
+    <h1>Memo component : {props.name}</h1>
+    )
+    }
+    export  default  MemoComp;
+output : 
+
+    ******** parent component render ********
+    Memo component
+    ******** parent component render ********
+    Memo component
+    ******** parent component render ********
+    Memo component
+    ******** parent component render ********
+    Memo component
+    ******** parent component render ********
+    Memo component
+***With using memo***
+> momoComp.js (memo component)
+
+    import  React  from  "react";
+    const  MemoComp = (props) => {
+    console.log('Memo component')
+    return (
+    <h1>Memo component : {props.name}</h1>
+    )
+    }
+    export  default  React.memo(MemoComp);
+output : 
+
+    ******** parent component render ********
+    Memo component
+    ******** parent component render ********    
+    ******** parent component render ********    
+    ******** parent component render ********    
+    ******** parent component render ********
+    
+## refs
+with help of refs we create reference which can be used to access DOM elements
+
+> App.js
+
+    import { Component } from  'react'  
+    
+    import  Refs  from  './refs'
+    class  App  extends  Component {
+    render() {
+    return (
+    <>
+    <Refs/>
+    </>
+    )
+    }
+    }
+    export  default  App;
+    
+
+> refs.js
+
+    import  React, { Component } from  'react'  
+    
+    export  class  Refs  extends  Component {
+    constructor() {
+    super()
+    this.ref1 = React.createRef()
+    }
+    componentDidMount(){
+    // console.log(this.ref1)
+    this.ref1.current.focus()
+    }
+    showAlert = () => {
+    alert(this.ref1.current.value)
+    }
+    render() {
+    return (
+    <>
+    <input  type='text'  ref={this.ref1}  />
+    <button  onClick={this.showAlert}>click</button>
+    </>
+    )
+    }
+    }
+    export  default  Refs
+
+***Applying refs to child components***
+we can access data (variables, functions) of child component in parent component by applying refs to child component.
+
+in following code we are calling child components' function in parent component.
+
+> App.js (parent component)
+
+    import  React, { Component } from  'react'  
+    
+    import  Child  from  './child';
+    class  App  extends  Component {
+	    constructor(){
+		    super()
+		    this.reference = React.createRef()
+	    }
+	    change = () => {
+		    this.reference.current.changeColor()
+	    }
+	    render() {
+		    return (
+			    <>
+				    <Child  ref={this.reference}/>
+				    <button  onClick={this.change}>change color</button>
+			    </>
+		    )
+	    }
+    }
+    export  default  App;
+
+> child.js (child component)
+
+    import  React, { Component } from  'react'  
+    
+    export  class  Child  extends  Component {
+	    constructor(){
+		    super()
+		    this.state = {
+			    color : 'Red'
+		    }
+	    }
+	    changeColor = () => {
+		    this.setState({
+			    color : 'Green'
+		    })
+	    }
+	    render() {
+		    return (
+			    <div>state 1 : {this.state.color}</div>
+		    )
+	    }
+    }
+    export  default  Child
+## Portals
+with help of portals we can render the component in other element instead of root element.
+
+> index.html
+
+    <!DOCTYPE  html>
+    <html  lang="en">
+    <head>
+	    <meta  charset="utf-8"  />
+	    <link  rel="icon"  href="%PUBLIC_URL%/favicon.ico"  />
+	    <meta  name="viewport"  content="width=device-width, initial-scale=1"  />
+	    <meta  name="theme-color"  content="#000000"  />
+	    <meta  name="description"  content="Web site created using create-react-app"  />
+	    <link  rel="apple-touch-icon"  href="%PUBLIC_URL%/logo192.png"  />
+	    <title>React App</title>
+    </head>
+    <body>
+	    <noscript>You need to enable JavaScript to run this app.</noscript>
+	    <div  id="root"></div>
+	    <div  id="portalRoot"></div>
+    </body>
+    </html>
+
+> index.js
+
+    import  reactDom  from  'react-dom'
+    import  App  from  "./App.js";
+    reactDom.render(<App/>, document.getElementById('root'))
+
+> App.js
+
+    import  React, { Component } from  'react'
+    import  reactDom  from  'react-dom'
+    class  App  extends  Component {
+	    render() {
+		    return reactDom.createPortal(<><h1>Hello world</h1></>, document.getElementById('portalRoot'))
+	    }
+    }
+    export  default  App;
+In this code the App component will not be rendered in div with id = 'root' . But it will be rendered in div with id = 'portalRoot'
+
+
 
