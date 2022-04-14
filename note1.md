@@ -1276,5 +1276,178 @@ with help of portals we can render the component in other element instead of roo
     export  default  App;
 In this code the App component will not be rendered in div with id = 'root' . But it will be rendered in div with id = 'portalRoot'
 
+## higher order component
+
+ - a higher order component is a function which takes a component as an argument and return an enhanced component.
+ - with help of higher order component we can write a functionality once and use that functionality in many components.
+
+in below code example the **increase** functionality is used two different components.
+
+> App.js
+
+    import  React  from  'react'
+    import  Counter1  from  './counter1'
+    import  Counter2  from  './counter2'
+    function  App() {
+    return (
+    <>
+    <Counter1/>
+    <Counter2/>
+    </>
+    )
+    }
+    export  default  App
+
+> counter1.js
+
+    import  React  from  'react'
+    import  Hoc  from  './hoc'
+    function  Counter1({count, increase}) {
+    return (
+    <button  onClick={increase}>Click on me : {count}</button>
+    )
+    }
+    export  default  Hoc(Counter1)
+
+> counter2.js
+
+    import  React  from  'react'
+    import  Hoc  from  './hoc'
+    function  Counter2({count, increase}) {
+    return (
+    <button  onMouseOver={increase}>hover over me : {count}</button>
+    )
+    }
+    export  default  Hoc(Counter2)
+
+> hoc.js
+
+    import  React  from  'react'
+    const  Hoc = (OriginalComp) => {
+    class  NewComponent  extends  React.Component {
+    constructor(){
+    super()
+    this.state = {
+    count : 1
+    }
+    }
+    increase = () => {
+    this.setState({
+    count : this.state.count + 1
+    })
+    }
+    render(){
+    return (<OriginalComp  count={this.state.count}  increase={this.increase}/>)
+    }
+    }
+    return  NewComponent;
+    }
+    export  default  Hoc;
+## Render props
+the term **render prop** is referred to a technique of sharing code form parent component to child component using prop whose value is a function. (passing function as a prop)
+
+## Context
+context provides a way to pass the data across the component tree without having to pass prop down manually to every level.
+
+> contextCreater.js : (creating context n a different component and
+> exporting it)
+
+    import  React  from  "react";
+    const  context1 = React.createContext()
+    const  Provider1 =  context1.Provider
+    const  Consumer1 =  context1.Consumer
+    export {Provider1, Consumer1};
+
+> App.js : (using context to provide value)
+
+    import  React  from  'react'
+    import { Provider1 } from  './contextCreater'
+    import  Level1  from  './level1'
+    function  App() {
+	    return (
+		    <Provider1  value='Vikas Anand'>
+			    <Level1  />
+		    </Provider1>
+	    )
+    }
+    export  default  App
+
+> Level1.js : (other middle component in component tree)
+
+    import  React  from  'react'
+    import  Level2  from  './level2'
+    function  Level1() {
+    return (
+    <Level2/>
+    )
+    }
+    export  default  Level1
+ 
+
+> Level2.js : (other middle component in component tree)
+
+    import  React  from  'react'
+    import  Level3  from  './level3'
+    function  Level2() {
+    return (
+    <Level3/>
+    )
+    }
+    export  default  Level2
+
+> Level3.js : (recieving the data)
+
+    import  React  from  'react'
+    import { Consumer1 } from  './contextCreater'
+    function  Level3() {
+	    return (
+		    <Consumer1>
+			    {
+				    (xyz)=>{
+					    return (<h1>{xyz}</h1>)
+				    }
+			    }
+		    </Consumer1>
+	    )
+    }
+    export  default  Level3
+***Setting default value of context***
+for this we need to set the default value of context while creating it. And then we can consume it any where without defining any provider tag.
+
+> contextCreater.js
+
+    import  React  from  "react";
+    const  context1 = React.createContext('Vikas Anand')
+    const  Provider1 =  context1.Provider
+    const  Consumer1 =  context1.Consumer
+    export {Provider1, Consumer1};
+
+> App.js
+
+    import  React  from  'react'
+    import  Level1  from  './level1'
+    function  App() {
+    return (
+    <Level1  />
+    )
+    }
+    export  default  App
+
+> Level3.js
+
+    import  React  from  'react'
+    import { Consumer1 } from  './contextCreater'
+    function  Level3() {
+    return (
+    <Consumer1>
+    {
+    (xyz)=>{
+    return (<h1>{xyz}</h1>)
+    }
+    }
+    </Consumer1>
+    )
+    }
+    export  default  Level3
 
 
