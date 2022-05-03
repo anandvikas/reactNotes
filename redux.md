@@ -23,6 +23,8 @@ now create a file named index.js and write the code in that
  1. store all the states the the application in a single object, which would be maintained by the redux.
  2. To update the state object of the application we must let redux know about that with an **action**. Not allowed to directly update the state object.
  3. We must use pure reducers to perform the action.
+ pure reducers : 
+pure reducers are functions which take 'previous state' and 'action' as arguments and returns the new state.
 
 ## Actions
 
@@ -73,5 +75,269 @@ to use store we need to import redux in index.js
 
     const  redux = require('redux');
     const  createStore = redux.createStore;
+
+### creating the store
+the createStore method takes reducer as argument. 
+
+    const  store = createStore(reducer)
+    
+with help of getstate method we get the current state of store.
+
+    console.log('initial state',  store.getState())
+    const  unsubscribe = store.subscribe(()=>{console.log('Update state  ',  store.getState())})
+dispatching actions.
+
+    store.dispatch(buyCake())
+    store.dispatch(buyCake())
+    store.dispatch(buyCake())
+    
+    unsubscribe()
+
+## Complete cake shop app
+
+    const  redux = require('redux');
+    const  createStore = redux.createStore;  
+    
+    // action type
+    const  BUY_CAKE = 'BUY_CAKE'  
+    
+    // action creator
+    const  buyCake = () => {
+	    return {
+		    type : BUY_CAKE,
+		    quantity : 1
+	    }
+    }  
+    
+    // initial State
+    const  initialState = {
+	    numOfCakes : 10
+    }  
+    
+    // reducer
+    const  reducer = (state = initialState, action) => {
+	    switch(action.type){
+		    case  BUY_CAKE : return {...state, numOfCakes :  state.numOfCakes - 1}
+		    default : return  state
+	    }
+    }  
+    
+    // store
+    const  store = createStore(reducer)  
+    
+    // other methods
+    console.log('initial state  ',  store.getState())
+    const  unsubscribe =  store.subscribe(()=>{console.log('Update state  ',  store.getState())})  
+    
+    // dispatching the action
+    store.dispatch(buyCake())
+    store.dispatch(buyCake())
+    store.dispatch(buyCake())  
+    
+    unsubscribe()
+### restocking the cake
+
+    ...
+    // action type
+    ...
+    const  CAKE_RESTOCKED = 'CAKE_RESTOCKED'
+    
+      
+    
+    // action creator
+    ...
+    const  restockCake = (qty = 1) => {
+	    return {
+		    type : CAKE_RESTOCKED,
+		    quantity : qty
+	    }
+    }  
+    ...
+    // reducer
+    const  reducer = (state = initialState, action) => {
+	    switch(action.type){
+		    case  BUY_CAKE : return {...state, numOfCakes :  state.numOfCakes - 1}
+		    case  CAKE_RESTOCKED : return {...state, numOfCakes :  state.numOfCakes +  action.quantity}
+		    default : return  state
+	    }
+    }  
+    ...
+    // dispatching the action
+    ...
+    store.dispatch(restockCake(3))  
+    
+    unsubscribe()
+
+## Binding the action creators
+bindActionCreators can be used to bind actions to a variable.
+
+    ...
+    // importing
+    const  bindActionCreators = redux.bindActionCreators
+    ...
+    // dispatching actions using bindActionCreators
+    const  actions = bindActionCreators({buyCake, restockCake},  store.dispatch)
+    actions.buyCake()
+    actions.buyCake()
+    actions.buyCake()
+    actions.restockCake(3)  
+    
+    unsubscribe()
+## Adding one more product
+
+> with help of only one reducer
+
+    // action type
+    ...
+    const  BUY_ICECREAM = 'BUY_ICECREAM'
+    const  ICECREAM_RESTOCKED = 'ICECREAM_RESTOCKED'  
+    
+    // action creator
+    ...
+    const  buyIceCream = () => {
+	    return {
+		    type : BUY_ICECREAM,
+		    quantity : 1
+	    }
+    }
+    const  restockIceCream = (qty = 1) => {
+	    return {
+		    type : ICECREAM_RESTOCKED,
+		    quantity : qty
+	    }
+    }  
+    
+    // initial State
+    const  initialState = {
+	    numOfCakes : 10,
+	    numOfIceCreams : 20
+    }  
+    
+    // reducer
+    const  reducer = (state = initialState, action) => {
+	    switch(action.type){
+		    case  BUY_CAKE : return {...state, numOfCakes :  state.numOfCakes - 1}
+		    case  CAKE_RESTOCKED : return {...state, numOfCakes :  state.numOfCakes +  action.quantity}
+		    case  BUY_ICECREAM : return {...state, numOfIceCreams :  state.numOfIceCreams - 1}
+		    case  ICECREAM_RESTOCKED : return {...state, numOfIceCreams :  state.numOfIceCreams +  action.quantity}
+		    default : return  state
+	    }
+    }      
+    ...    
+    // dispatching actions using bindActionCreators
+    const  actions = bindActionCreators({buyCake, restockCake, buyIceCream, restockIceCream},  store.dispatch)
+    ...
+    actions.buyIceCream()
+    actions.buyIceCream()
+    actions.restockIceCream(2)  
+    
+    unsubscribe()
+with help of seperate reducers.
+
+> NOTE : since createStore method can accept only one argument. So, we
+> need to combine multiple reducers in one.
+
+    const  redux = require('redux');
+    const  createStore = redux.createStore;
+    const  bindActionCreators = redux.bindActionCreators;
+    const  combineReducers = redux.combineReducers;  
+    
+    // action type
+    const  BUY_CAKE = 'BUY_CAKE'
+    const  CAKE_RESTOCKED = 'CAKE_RESTOCKED'
+    const  BUY_ICECREAM = 'BUY_ICECREAM'
+    const  ICECREAM_RESTOCKED = 'ICECREAM_RESTOCKED'  
+    
+    // action creator
+    const  buyCake = () => {
+	    return {
+		    type : BUY_CAKE,
+		    quantity : 1
+	    }
+    }
+    const  restockCake = (qty = 1) => {
+	    return {
+		    type : CAKE_RESTOCKED,
+		    quantity : qty
+	    }
+    }
+    const  buyIceCream = () => {
+	    return {
+		    type : BUY_ICECREAM,
+		    quantity : 1
+	    }
+    }
+    const  restockIceCream = (qty = 1) => {
+	    return {
+		    type : ICECREAM_RESTOCKED,
+		    quantity : qty
+	    }
+    }  
+    
+    // initial State
+    const  cakeInitialState = {
+	    numOfCakes : 10,
+    }
+    const  iceCreamInitialState = {
+	    numOfIceCreams : 20
+    }  
+    
+    // reducer
+    const  cakeReducer = (state = cakeInitialState, action) => {
+	    switch(action.type){
+		    case  BUY_CAKE : return {...state, numOfCakes :  state.numOfCakes - 1}
+		    case  CAKE_RESTOCKED : return {...state, numOfCakes :  state.numOfCakes +  action.quantity}
+		    default : return  state
+	    }
+    }
+    const  iceCreamReducer = (state = iceCreamInitialState, action) => {
+	    switch(action.type){
+		    case  BUY_ICECREAM : return {...state, numOfIceCreams :  state.numOfIceCreams - 1}
+		    case  ICECREAM_RESTOCKED : return {...state, numOfIceCreams :  state.numOfIceCreams +  action.quantity}
+		    default : return  state
+	    }
+    }  
+    
+    // combining the reducers
+    const  rootReducer = combineReducers({
+	    cake : cakeReducer,
+	    iceCream : iceCreamReducer
+    })  
+    
+    // store
+    const  store = createStore(rootReducer)  
+    
+    // other methods
+    console.log('initial state  ',  store.getState())
+    const  unsubscribe =  store.subscribe(()=>{console.log('Update state  ',  store.getState())})    
+    
+    // dispatching actions using bindActionCreators
+    const  actions = bindActionCreators({buyCake, restockCake, buyIceCream, restockIceCream},  store.dispatch)
+    actions.buyCake()
+    actions.buyCake()
+    actions.buyCake()
+    actions.restockCake(3)
+    actions.buyIceCream()
+    actions.buyIceCream()
+    actions.restockIceCream(2)  
+    
+    unsubscribe()
+## Adding logger middleware
+install through npm
+
+    npm install redux-logger
+usage.
+
+    ...
+    const  applyMiddleware = redux.applyMiddleware
+    const  reduxLogger = require('redux-logger')
+    const  logger = reduxLogger.createLogger()
+    ...
+    ...
+    const  store = createStore(rootReducer, applyMiddleware(logger))
+    ...
+    ...
+
+
 
    
